@@ -21,4 +21,17 @@ public class AdminDao {
     public boolean approveUser(int userId) throws SQLException {
         return userDao.approveUser(userId);
     }
+
+    public boolean updateUserRoleAndStatus(
+            int userId,
+            String newRole,
+            String newStatus
+    ) throws SQLException {
+
+        return userDao.updateUserRoleAndStatus(
+                userId,
+                newRole.toUpperCase(),
+                newStatus.toUpperCase()
+        );
+    }
 }

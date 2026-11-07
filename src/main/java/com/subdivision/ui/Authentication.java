@@ -15,6 +15,7 @@ public class Authentication {
     private final Scanner scanner;
 
     public Authentication(UserDao userDao, Scanner scanner) {
+
         this.userDao = userDao;
         this.adminDao = new AdminDao();
         this.scanner = scanner;
@@ -30,12 +31,15 @@ public class Authentication {
             System.out.println("1. Register Account");
             System.out.println("2. Login");
             System.out.println("3. Exit");
+
             System.out.print("Choose an option: ");
 
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
+
                 case "1" -> register();
+
                 case "2" -> login();
 
                 case "3" -> {
@@ -43,14 +47,17 @@ public class Authentication {
                     System.out.println("Goodbye!");
                 }
 
-                default -> System.out.println("Invalid choice.");
+                default ->
+                        System.out.println("Invalid choice.");
             }
         }
     }
 
+    // REGISTER
     private void register() {
 
         try {
+
             System.out.println("\n===== REGISTER ACCOUNT =====");
 
             System.out.print("Username: ");
@@ -61,6 +68,7 @@ public class Authentication {
 
             System.out.println("1. Staff");
             System.out.println("2. Resident");
+
             System.out.print("Choose role: ");
 
             String roleChoice = scanner.nextLine().trim();
@@ -71,35 +79,44 @@ public class Authentication {
                 default -> null;
             };
 
-            if (username.isBlank()
-                    || password.isBlank()
-                    || role == null) {
+            if (username.isBlank() || password.isBlank() || role == null) {
 
                 System.out.println("Invalid input. Please try again.");
                 return;
             }
 
             User user = new User(
-                    0, username, password, role, "PENDING"
+                    0,
+                    username,
+                    password,
+                    role,
+                    "PENDING"
             );
 
             if (userDao.register(user)) {
+
                 System.out.println("Registration successful!");
                 System.out.println("Username: " + username);
                 System.out.println("Role: " + role);
                 System.out.println("Status: PENDING");
                 System.out.println(
-                        "Please wait for administrator approval.");
+                        "Please wait for administrator approval."
+                );
             }
 
         } catch (SQLException e) {
-            System.out.println("Registration failed: " + e.getMessage());
+
+            System.out.println(
+                    "Registration failed: " + e.getMessage()
+            );
         }
     }
 
+    // LOGIN
     private void login() {
 
         try {
+
             System.out.println("\n===== LOGIN =====");
 
             System.out.print("Username: ");
@@ -109,17 +126,22 @@ public class Authentication {
             String password = scanner.nextLine();
 
             if (username.isBlank() || password.isBlank()) {
+
                 System.out.println(
-                        "Username and password are required.");
+                        "Username and password are required."
+                );
+
                 return;
             }
 
             User user = userDao.login(username, password);
 
             if (user == null) {
+
                 System.out.println(
-                        "Login failed. Check your credentials "
-                                + "or account approval status.");
+                        "Login failed. Check your credentials or account approval status."
+                );
+
                 return;
             }
 
@@ -128,21 +150,38 @@ public class Authentication {
             System.out.println("Role: " + user.roles());
 
             switch (user.roles().toUpperCase()) {
-                case "ADMIN" -> adminMenu();
-                case "STAFF", "RESIDENT" -> userMenu(user);
-                default -> System.out.println("Unknown user role.");
+
+                case "ADMIN" ->
+                        adminMenu(user);
+
+                case "STAFF", "RESIDENT" ->
+                        userMenu(user);
+
+                default ->
+                        System.out.println("Unknown user role.");
             }
 
         } catch (SQLException e) {
-            System.out.println("Login error: " + e.getMessage());
+
+            System.out.println(
+                    "Login error: " + e.getMessage()
+            );
         }
     }
 
-    private void adminMenu() {
-        AdminMenu menu = new AdminMenu(adminDao, scanner);
+    // ADMIN MENU
+    private void adminMenu(User currentAdmin) {
+
+        AdminMenu menu = new AdminMenu(
+                adminDao,
+                scanner,
+                currentAdmin
+        );
+
         menu.showMenu();
     }
 
+    // STAFF AND RESIDENT MENU
     private void userMenu(User user) {
 
         boolean loggedIn = true;
@@ -153,13 +192,17 @@ public class Authentication {
             System.out.println("Logged in as: " + user.username());
             System.out.println("1. View Account Information");
             System.out.println("2. Logout");
+
             System.out.print("Choose an option: ");
 
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
+
                 case "1" -> {
+
                     System.out.println("\n===== ACCOUNT INFORMATION =====");
+
                     System.out.println("User ID: " + user.id());
                     System.out.println("Username: " + user.username());
                     System.out.println("Role: " + user.roles());
@@ -167,11 +210,16 @@ public class Authentication {
                 }
 
                 case "2" -> {
+
                     loggedIn = false;
-                    System.out.println("You have logged out successfully.");
+
+                    System.out.println(
+                            "You have logged out successfully."
+                    );
                 }
 
-                default -> System.out.println("Invalid choice.");
+                default ->
+                        System.out.println("Invalid choice.");
             }
         }
 

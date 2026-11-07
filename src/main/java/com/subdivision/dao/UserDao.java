@@ -13,7 +13,6 @@ import java.util.List;
 public class UserDao {
 
     public boolean register(User user) throws SQLException {
-
         String sql = """
                 INSERT INTO users (username, password, roles, status)
                 VALUES (?, ?, ?, 'PENDING')
@@ -30,9 +29,7 @@ public class UserDao {
         }
     }
 
-    public User login(String username, String password)
-            throws SQLException {
-
+    public User login(String username, String password) throws SQLException {
         String sql = """
                 SELECT id, username, password, roles, status
                 FROM users
@@ -48,7 +45,6 @@ public class UserDao {
             statement.setString(2, password);
 
             try (ResultSet result = statement.executeQuery()) {
-
                 if (result.next()) {
                     return new User(
                             result.getInt("id"),
@@ -65,7 +61,6 @@ public class UserDao {
     }
 
     public List<User> getAllUsers() throws SQLException {
-
         String sql = """
                 SELECT id, username, password, roles, status
                 FROM users
@@ -93,7 +88,6 @@ public class UserDao {
     }
 
     public List<User> getPendingUsers() throws SQLException {
-
         String sql = """
                 SELECT id, username, password, roles, status
                 FROM users
@@ -122,7 +116,6 @@ public class UserDao {
     }
 
     public boolean approveUser(int userId) throws SQLException {
-
         String sql = """
                 UPDATE users
                 SET status = 'APPROVED'
@@ -133,6 +126,30 @@ public class UserDao {
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setInt(1, userId);
+
+            return statement.executeUpdate() == 1;
+        }
+    }
+
+    // UPDATE USER ROLE AND STATUS
+    public boolean updateUserRoleAndStatus(
+            int userId,
+            String newRole,
+            String newStatus
+    ) throws SQLException {
+
+        String sql = """
+                UPDATE users
+                SET roles = ?, status = ?
+                WHERE id = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, newRole.toUpperCase());
+            statement.setString(2, newStatus.toUpperCase());
+            statement.setInt(3, userId);
 
             return statement.executeUpdate() == 1;
         }
