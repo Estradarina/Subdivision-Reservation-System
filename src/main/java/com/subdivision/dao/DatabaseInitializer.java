@@ -1,3 +1,4 @@
+
 package com.subdivision.dao;
 
 import java.sql.Connection;
@@ -15,20 +16,14 @@ public class DatabaseInitializer {
                     username TEXT NOT NULL UNIQUE,
                     password TEXT NOT NULL,
                     roles TEXT NOT NULL
-                        CHECK (
-                            roles IN ('ADMIN', 'STAFF', 'RESIDENT')
-                        ),
+                        CHECK (roles IN ('ADMIN', 'STAFF', 'RESIDENT')),
                     status TEXT NOT NULL DEFAULT 'PENDING'
-                        CHECK (
-                            status IN ('PENDING', 'ACTIVE', 'INACTIVE')
-                        )
+                        CHECK (status IN ('PENDING', 'APPROVED', 'INACTIVE'))
                 )
                 """;
 
-        try (Connection connection =
-                     DatabaseConnection.getConnection();
-             Statement statement =
-                     connection.createStatement()) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             Statement statement = connection.createStatement()) {
 
             statement.execute(createUsersTable);
         }
@@ -43,13 +38,11 @@ public class DatabaseInitializer {
         String sql = """
                 INSERT OR IGNORE INTO users
                     (username, password, roles, status)
-                VALUES (?, ?, 'ADMIN', 'ACTIVE')
+                VALUES (?, ?, 'ADMIN', 'APPROVED')
                 """;
 
-        try (Connection connection =
-                     DatabaseConnection.getConnection();
-             PreparedStatement statement =
-                     connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setString(1, "admin");
             statement.setString(2, "Admin123!");

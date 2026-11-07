@@ -1,4 +1,3 @@
-
 package com.subdivision;
 
 import com.subdivision.dao.DatabaseInitializer;
@@ -9,29 +8,17 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
-
         try {
-            DatabaseInitializer initializer =
-                    new DatabaseInitializer();
-
-            initializer.initialize();
+            // The database must be initialized before any menu is shown.
+            new DatabaseInitializer().initialize();
 
             UserDao userDao = new UserDao();
-
             try (Scanner scanner = new Scanner(System.in)) {
-
-                Authentication authentication =
-                        new Authentication(userDao, scanner);
-
-                authentication.start();
+                new Authentication(userDao, scanner).start();
             }
-
         } catch (SQLException e) {
-            System.err.println(
-                    "Database error: " + e.getMessage()
-            );
+            System.err.println("Database initialization failed: " + e.getMessage());
         }
     }
 }
